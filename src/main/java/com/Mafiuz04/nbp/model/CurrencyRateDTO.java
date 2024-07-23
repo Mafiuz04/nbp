@@ -2,7 +2,6 @@ package com.Mafiuz04.nbp.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.util.List;

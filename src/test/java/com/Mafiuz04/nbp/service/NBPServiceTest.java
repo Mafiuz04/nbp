@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListResourceBundle;
 
 import static org.mockito.Mockito.*;
 
@@ -85,9 +84,7 @@ public class NBPServiceTest {
         when(nbpClient.getAList("A")).thenReturn(list);
         when(nbpClient.getAList("B")).thenReturn(list);
 
-        NBPException exception = Assertions.assertThrows(NBPException.class, () -> {
-            nbpService.getCurrency("PLN");
-        });
+        NBPException exception = Assertions.assertThrows(NBPException.class, () -> nbpService.getCurrency("PLN"));
 
         Assertions.assertEquals("The selected currency does not exist in our system", exception.getMessage());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
