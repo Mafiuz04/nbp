@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,14 +22,10 @@ public class NBPService {
 
     public List<RateDto> getListOfRates(LocalDate date) {
         if (date == null) {
-            List<CurrencyRateDTO> listA = List.of(nbpClient.getAList());
-            List<RateDto> ratesA = listA.stream()
-                    .flatMap(rates -> Arrays.stream(listA.getLast().getRates()))
-                    .toList();
-            List<CurrencyRateDTO> listB = List.of(nbpClient.getBList());
-            List<RateDto> ratesB = listA.stream()
-                    .flatMap(rates -> Arrays.stream(listB.getLast().getRates()))
-                    .toList();
+            List<CurrencyRateDTO> listA = nbpClient.getAList("A");
+            List<RateDto> ratesA = listA.getLast().getRates();
+            List<CurrencyRateDTO> listB =nbpClient.getAList("B");
+            List<RateDto> ratesB = listB.getLast().getRates();
 
             return Stream.of(ratesA, ratesB)
                     .flatMap(List::stream)
@@ -38,11 +33,8 @@ public class NBPService {
         } else {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String format = date.format(dateTimeFormatter);
-            List<CurrencyRateDTO> listAByDate = List.of(nbpClient.getAListByDate(format));
-           return listAByDate.stream()
-                    .flatMap(rates -> Arrays.stream(listAByDate.getLast().getRates()))
-                    .toList();
-
+            List<CurrencyRateDTO> listAByDate = nbpClient.getAListByDate("A",format);
+           return listAByDate.getLast().getRates();
         }
     }
 

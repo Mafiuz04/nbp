@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ListResourceBundle;
 
 import static org.mockito.Mockito.*;
 
@@ -30,30 +32,14 @@ public class NBPServiceTest {
 
     @Test
     void testGetListOfRates_NoDate() {
-        CurrencyRateDTO currencyRateDTOA = new CurrencyRateDTO(
-                "A", "001", LocalDate.now(), LocalDate.now(),
-                new RateDto[]{
-                        new RateDto("US Dollar", "USD", new BigDecimal("4.00")),
-                        new RateDto("Euro", "EUR", new BigDecimal("4.50"))
-                }
-        );
+        List<CurrencyRateDTO> list = createAList();
+        LocalDate date = LocalDate.of(2023, 12, 20);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String format = date.format(dateTimeFormatter);
 
-        CurrencyRateDTO currencyRateDTOB = new CurrencyRateDTO(
-                "B", "002", LocalDate.now(), LocalDate.now(),
-                new RateDto[]{
-                        new RateDto("British Pound", "GBP", new BigDecimal("5.00")),
-                        new RateDto("Swiss Franc", "CHF", new BigDecimal("4.20"))
-                }
-        );
-        CurrencyRateDTO[] arrayA = new CurrencyRateDTO[1];
-        arrayA[0] = currencyRateDTOA;
-        CurrencyRateDTO[] arrayB = new CurrencyRateDTO[1];
-        arrayB[0] = currencyRateDTOA;
+        when(nbpClient.getAListByDate("A", format)).thenReturn(list);
 
-        when(nbpClient.getAList()).thenReturn(arrayA);
-        when(nbpClient.getBList()).thenReturn(arrayB);
-
-        List<RateDto> result = nbpService.getListOfRates(null);
+        List<RateDto> result = nbpService.getListOfRates(date);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(4, result.size());
@@ -66,40 +52,24 @@ public class NBPServiceTest {
         LocalDate date = LocalDate.of(2023, 7, 20);
         String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        CurrencyRateDTO currencyRateDTO = new CurrencyRateDTO(
-                "A", "003", LocalDate.now(), LocalDate.now(),
-                new RateDto[]{
-                        new RateDto("US Dollar", "USD", new BigDecimal("4.00")),
-                        new RateDto("Euro", "EUR", new BigDecimal("4.50"))
-                }
-        );
-        CurrencyRateDTO[] array = new CurrencyRateDTO[1];
-        array[0] = currencyRateDTO;
+        List<CurrencyRateDTO> list = createAList();
 
-        when(nbpClient.getAListByDate(formattedDate)).thenReturn(array);
+        when(nbpClient.getAListByDate("A", formattedDate)).thenReturn(list);
 
         List<RateDto> result = nbpService.getListOfRates(date);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(2, result.size());
+        Assertions.assertEquals(4, result.size());
         Assertions.assertTrue(result.stream().anyMatch(rate -> "USD".equals(rate.getCode())));
         Assertions.assertTrue(result.stream().anyMatch(rate -> "EUR".equals(rate.getCode())));
     }
 
     @Test
     void testGetCurrency_Exists() {
-        CurrencyRateDTO currencyRateDTO = new CurrencyRateDTO(
-                "A", "004", LocalDate.now(), LocalDate.now(),
-                new RateDto[]{
-                        new RateDto("US Dollar", "USD", new BigDecimal("4.00")),
-                        new RateDto("Euro", "EUR", new BigDecimal("4.50"))
-                }
-        );
-        CurrencyRateDTO[] array = new CurrencyRateDTO[1];
-        array[0] = currencyRateDTO;
+        List<CurrencyRateDTO> list = createAList();
 
-        when(nbpClient.getAList()).thenReturn(array);
-        when(nbpClient.getBList()).thenReturn(array);
+        when(nbpClient.getAList("A")).thenReturn(list);
+        when(nbpClient.getAList("B")).thenReturn(list);
 
         RateDto result = nbpService.getCurrency("USD");
 
@@ -110,18 +80,10 @@ public class NBPServiceTest {
 
     @Test
     void testGetCurrency_NotExists() {
-        CurrencyRateDTO currencyRateDTO = new CurrencyRateDTO(
-                "A", "004", LocalDate.now(), LocalDate.now(),
-                new RateDto[]{
-                        new RateDto("US Dollar", "USD", new BigDecimal("4.00")),
-                        new RateDto("Euro", "EUR", new BigDecimal("4.50"))
-                }
-        );
-        CurrencyRateDTO[] array = new CurrencyRateDTO[1];
-        array[0] = currencyRateDTO;
+        List<CurrencyRateDTO> list = createAList();
 
-        when(nbpClient.getAList()).thenReturn(array);
-        when(nbpClient.getBList()).thenReturn(array);
+        when(nbpClient.getAList("A")).thenReturn(list);
+        when(nbpClient.getAList("B")).thenReturn(list);
 
         NBPException exception = Assertions.assertThrows(NBPException.class, () -> {
             nbpService.getCurrency("PLN");
@@ -129,6 +91,21 @@ public class NBPServiceTest {
 
         Assertions.assertEquals("The selected currency does not exist in our system", exception.getMessage());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    private List<CurrencyRateDTO> createAList() {
+        List<CurrencyRateDTO> list = new ArrayList<>();
+        CurrencyRateDTO currencyRateDTOB = new CurrencyRateDTO(
+                "B", "002", LocalDate.now(), LocalDate.now(),
+                List.of(
+                        new RateDto("British Pound", "GBP", new BigDecimal("5.00")),
+                        new RateDto("Swiss Franc", "CHF", new BigDecimal("4.20")),
+                        new RateDto("American Dolar", "USD", new BigDecimal("4.00")),
+                        new RateDto("Euro", "EUR", new BigDecimal("4.50")))
+        );
+        list.add(currencyRateDTOB);
+        return list;
+
     }
 }
 

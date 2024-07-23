@@ -5,22 +5,14 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
 
-@FeignClient(name = "NBPClient", url = "http://api.nbp.pl/")
+@FeignClient(name = "NBPClient", url = "api.nbp.pl/")
 public interface NBPClient {
 
-    @GetMapping("api/exchangerates/tables/A")
-    CurrencyRateDTO[] getAList();
+    @GetMapping("api/exchangerates/tables/{table}")
+    List<CurrencyRateDTO> getAList(@PathVariable("table") String table);
 
-    @GetMapping("api/exchangerates/tables/B")
-    CurrencyRateDTO[] getBList();
-
-    @GetMapping("api/exchangerates/tables/A/{date}")
-    CurrencyRateDTO[] getAListByDate(@PathVariable("date") String date);
-
-    @GetMapping("api/exchangerates/tables/B/{date}")
-    CurrencyRateDTO[] getBListByDate(@PathVariable("date") String date);
-
+    @GetMapping("api/exchangerates/tables/{table}/{date}")
+    List<CurrencyRateDTO>  getAListByDate(@PathVariable("table") String table,@PathVariable("date") String date);
 }

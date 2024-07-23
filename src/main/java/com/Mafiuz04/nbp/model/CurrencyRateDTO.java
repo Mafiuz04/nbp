@@ -5,6 +5,8 @@ import lombok.Data;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 public class CurrencyRateDTO {
@@ -12,5 +14,5 @@ public class CurrencyRateDTO {
     private String no;
     private LocalDate tradingDate;
     private LocalDate effectiveDate;
-    private RateDto[] rates;
+    private List<RateDto> rates;
 }

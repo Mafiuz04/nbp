@@ -52,7 +52,7 @@ public class NBPControllerTests {
     }
 
     @Test
-    void testGetListOfRates_NoDate() throws Exception {
+    void testGetListOfRates_NoDate_ListReturned() throws Exception {
         when(nbpService.getListOfRates(null)).thenReturn(mockRates);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/rates").contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -62,12 +62,12 @@ public class NBPControllerTests {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].code").value("USD"))
                 .andExpect(jsonPath("$[0].mid").value(4.0))
-                .andExpect(jsonPath("$[0].code").value("EUR"))
-                .andExpect(jsonPath("$[0].mid").value(4.5));
+                .andExpect(jsonPath("$[1].code").value("EUR"))
+                .andExpect(jsonPath("$[1].mid").value(4.5));
     }
 
     @Test
-    void testGetListOfRates_WithDate() throws Exception {
+    void testGetListOfRates_WithDate_ListReturned() throws Exception {
         when(nbpService.getListOfRates(any(LocalDate.class))).thenReturn(mockRates);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/rates/2024-12-10").contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -77,21 +77,21 @@ public class NBPControllerTests {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].code").value("USD"))
                 .andExpect(jsonPath("$[0].mid").value(4.0))
-                .andExpect(jsonPath("$[0].code").value("EUR"))
-                .andExpect(jsonPath("$[0].mid").value(4.5));
+                .andExpect(jsonPath("$[1].code").value("EUR"))
+                .andExpect(jsonPath("$[1].mid").value(4.5));
     }
 
     @Test
-    void testGetCurrency() throws Exception {
+    void testGetCurrency_GetCurrency() throws Exception {
         RateDto usdRate = new RateDto("US Dollar", "USD", new BigDecimal("4.00"));
-        when(nbpService.getCurrency(anyString())).thenReturn(usdRate);
+        when(nbpService.getCurrency("USD")).thenReturn(usdRate);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/rate/USD").contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].code").value("USD"))
-                .andExpect(jsonPath("$[0].mid").value(4.0));
+                .andExpect(jsonPath("code").value("USD"))
+                .andExpect(jsonPath("mid").value(4.0));
     }
 }
 
